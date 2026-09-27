@@ -162,6 +162,22 @@ class BlogServiceIntegrationTests {
                 .andExpect(jsonPath("$.result.totalElements").value(1));
     }
 
+    // Task sheet US7: a title match ranks above a body-only match. The body match is
+    // published second, so without the ranking the default newest-first sort would put it on top.
+    @Test
+    void keywordSearch_ranksTitleMatchesBeforeBodyMatches() throws Exception {
+        String keyword = "tukhoa" + unique();
+        long categoryId = createRootCategory("Danh mục " + unique());
+        long titleMatch = createPublishedBlog(categoryId, "Đậu hũ " + keyword, body(unique()));
+        long bodyMatch = createPublishedBlog(categoryId, "Bún chay " + unique(), body(keyword));
+
+        mockMvc.perform(get("/blogs").param("keyword", keyword))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.totalElements").value(2))
+                .andExpect(jsonPath("$.result.items[0].id").value(titleMatch))
+                .andExpect(jsonPath("$.result.items[1].id").value(bodyMatch));
+    }
+
     @Test
     void readingABlog_incrementsItsViewCount() throws Exception {
         String suffix = unique();

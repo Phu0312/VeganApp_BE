@@ -120,7 +120,7 @@ public class BlogController {
         return ApiResponse.<Void>builder().build();
     }
 
-    @Operation(summary = "Published blogs; keyword searches title and content")
+    @Operation(summary = "Published blogs; keyword searches title and content, title matches first")
     @GetMapping
     ApiResponse<PageResponse<BlogSummaryResponse>> getPublishedBlogs(
             @RequestParam(name = "categoryId", required = false) Long categoryId,
