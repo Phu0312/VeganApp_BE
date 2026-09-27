@@ -25,6 +25,9 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 
     boolean existsByCategoryId(Long categoryId);
 
+    // Task sheet US7: title matches rank above body-only matches. The Pageable's sort is
+    // appended after this expression, so it only orders rows within each tier. With no
+    // keyword, like null is NULL and every row falls into the same tier.
     @Query("""
             select b from Blog b
             where b.status = :status
@@ -32,6 +35,7 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
               and (:keyword is null
                    or lower(b.title) like lower(concat('%', :keyword, '%'))
                    or lower(b.content) like lower(concat('%', :keyword, '%')))
+            order by case when lower(b.title) like lower(concat('%', :keyword, '%')) then 0 else 1 end
             """)
     Page<Blog> search(
             @Param("status") ContentStatus status,
