@@ -35,6 +35,7 @@ spring:
               filters:
                 - StripPrefix=1
 
+
             # =========================
             # NUTRITION SERVICE
             # =========================
@@ -51,6 +52,7 @@ spring:
                 - Path=/nutrition-service/v3/api-docs/**
               filters:
                 - StripPrefix=1
+
 
             # =========================
             # BLOG SERVICE
@@ -83,8 +85,38 @@ spring:
               filters:
                 - StripPrefix=1
 
+
+            # =========================
+            # RECIPE SERVICE
+            # =========================
+
+            # Ingredient APIs
+            - id: recipe-service-ingredients
+              uri: http://localhost:8084
+              predicates:
+                - Path=/api/ingredients/**
+              filters:
+                - StripPrefix=1
+
+            # Recipe APIs
+            - id: recipe-service-recipes
+              uri: http://localhost:8084
+              predicates:
+                - Path=/api/recipes/**
+              filters:
+                - StripPrefix=1
+
+            # Recipe Swagger Docs
+            - id: recipe-service-docs
+              uri: http://localhost:8084
+              predicates:
+                - Path=/recipe-service/v3/api-docs/**
+              filters:
+                - StripPrefix=1
+
+
 # =========================
-# SWAGGER UI T?NG
+# SWAGGER UI TỔNG
 # =========================
 springdoc:
   swagger-ui:
@@ -93,7 +125,12 @@ springdoc:
     urls:
       - name: Identity Service
         url: /identity-service/v3/api-docs
+
       - name: Nutrition Service
         url: /nutrition-service/v3/api-docs
+
       - name: Blog Service
         url: /blog-service/v3/api-docs
+
+      - name: Recipe Service
+        url: /recipe-service/v3/api-docs
