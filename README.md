@@ -136,14 +136,16 @@ Các schema được dùng:
 - `veggiepal_nutrition`
 - `veggiepal_blog`
 
-### 3. Chuẩn bị bucket MinIO
+### 3. Bucket MinIO
 
-Mở MinIO Console tại `http://localhost:9001` với tài khoản local trong `docker-compose.yml`, sau đó tạo:
+Service `minio-init` trong `docker-compose.yml` tự tạo hai bucket và cấp quyền đọc ẩn danh (`mc anonymous set download`) sau mỗi lần `docker compose up -d`:
 
 - `veggiepal-avatars`
 - `veggiepal-blog-thumbnails`
 
-Cấu hình quyền đọc object phù hợp với `storage.s3.public-url`. Đây chỉ là thiết lập local; không sử dụng credential mặc định hoặc bucket public không kiểm soát trong production.
+Quyền đọc công khai là bắt buộc: service chỉ `PUT` object rồi trả về `<S3_PUBLIC_URL>/<key>`, trình duyệt tải ảnh thẳng từ MinIO. Bucket không tồn tại thì upload trả 503; bucket private thì URL được lưu nhưng ảnh bị 403.
+
+Kiểm tra nhanh: `docker logs veggiepal-minio-init` phải kết thúc không lỗi, và `curl -I <thumbnailUrl>` của một blog đã upload ảnh phải trả `200`. Đây chỉ là thiết lập local; không sử dụng credential mặc định hoặc bucket public không kiểm soát trong production.
 
 ### 4. Khởi động từng service
 
@@ -370,7 +372,7 @@ Phiên bản hiện tại phù hợp cho local development/demo, chưa nên tri�
 - Bổ sung refresh/revocation và chiến lược key rotation.
 - Thay `ddl-auto=update` bằng migration có version.
 - Container hóa các service và cấu hình service discovery/DNS phù hợp.
-- Khởi tạo bucket/policy tự động và xem xét object public/private.
+- Khởi tạo bucket/policy cho môi trường ngoài Compose và xem xét object public/private.
 - Bổ sung observability, backup, rate limit và integration/end-to-end tests.
 
 ## License

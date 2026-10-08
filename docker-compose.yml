@@ -36,6 +36,26 @@ services:
       - minio_data:/data
 
 
+  # One-shot: create the public-read buckets. The services only PUT objects and return
+  # <S3_PUBLIC_URL>/<key>, so without anonymous download the browser gets 403 on every image.
+  # Retry loop instead of a healthcheck: the minio image may not ship `mc`.
+  minio-init:
+    image: quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z
+    container_name: veggiepal-minio-init
+
+    depends_on:
+      - minio
+
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 minioadmin minioadmin; do sleep 1; done &&
+      mc mb --ignore-existing local/veggiepal-avatars &&
+      mc anonymous set download local/veggiepal-avatars &&
+      mc mb --ignore-existing local/veggiepal-blog-thumbnails &&
+      mc anonymous set download local/veggiepal-blog-thumbnails
+      "
+
+
   identity-service:
     build:
       context: ./identity-service
